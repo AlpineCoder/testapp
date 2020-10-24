@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: testapp-deployment
+  labels:
+    app: testapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: testapp
+  serviceName: "testapp"
+  template:
+    metadata:
+      labels:
+        app: testapp
+    spec:
+      containers:
+      - name: testapp
+        image: "quay.io/ixcloud/testapp:0.0.2"
+        ports:
+        - containerPort: 10000
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /data
+          name: testapp-data
+      imagePullSecrets:
+        - name: testapp-pull-secret
+  volumeClaimTemplates:
+  - metadata:
+      name: testapp-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "nas-eco-prd"
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testapp
+  labels:
+    app: testapp
+spec:
+  ports:
+  - port: 10000
+    protocol: TCP
+    name: testapp
+    targetPort: 10000
+  selector:
+    app: testapp
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: testapp-pull-secret
+data:
+  .dockerconfigjson: ewogICJhdXRocyI6IHsKICAgICJxdWF5LmlvIjogewogICAgICAiYXV0aCI6ICJhWGhqYkc5MVpDdGhabDkwWlhOMFlYQndYMjl3Y3pvNVNWcFRPRTFHTUZVNVNrZzJSRUpOVFVVMFVFbEJSVkpEVWtOSFRETkVPVU5TVGtaVVEwTldVakZNTmtKTVYxSXhOREpJU0RsUFJGQlFURTVWUjFSTSIsCiAgICAgICJlbWFpbCI6ICIiCiAgICB9CiAgfQp9
+type: kubernetes.io/dockerconfigjson
+---
