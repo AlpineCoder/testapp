@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testapp
+spec:
+  selector:
+    matchLabels:
+      app: testapp
+  template:
+    metadata:
+      labels:
+        app: testapp
+        role: frontend
+    spec:
+      containers:
+        - name: testapp
+          image: "quay.io/ixcloud/testapp:0.0.2"
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 10000
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: testapp-pull-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testapp
+  labels:
+    app: testapp
+spec:
+  ports:
+    - port: 10000
+      protocol: TCP
+      name: testapp
+      targetPort: 10000
+  selector:
+    app: testapp
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: testapp-pull-secret
+data:
+  .dockerconfigjson: ewogICJhdXRocyI6IHsKICAgICJxdWF5LmlvIjogewogICAgICAiYXV0aCI6ICJhWGhqYkc5MVpDdGhabDkwWlhOMFlYQndYMjl3Y3pvNVNWcFRPRTFHTUZVNVNrZzJSRUpOVFVVMFVFbEJSVkpEVWtOSFRETkVPVU5TVGtaVVEwTldVakZNTmtKTVYxSXhOREpJU0RsUFJGQlFURTVWUjFSTSIsCiAgICAgICJlbWFpbCI6ICIiCiAgICB9CiAgfQp9
+type: kubernetes.io/dockerconfigjson
+---
+
