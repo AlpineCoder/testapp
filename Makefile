@@ -2,7 +2,7 @@ VERSION=0.0.2
 IMAGENAME=testapp
 
 all: vet format
-	go build -o bin/${IMAGENAME} main.go
+	GOOS=linux GOARCH=amd64 go build -o bin/${IMAGENAME} main.go
 
 vet:
 	go vet main.go
