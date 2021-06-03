@@ -1,0 +1,30 @@
+# github.com/andelf/go-curl v0.0.0-20200630032108-fd49ff24ed97
+github.com/andelf/go-curl
+# github.com/davidmz/go-pageant v1.0.2
+github.com/davidmz/go-pageant
+# github.com/go-logr/logr v0.2.0
+github.com/go-logr/logr
+# github.com/kr/fs v0.1.0
+github.com/kr/fs
+# github.com/pkg/errors v0.9.1
+github.com/pkg/errors
+# github.com/pkg/sftp v1.13.0
+github.com/pkg/sftp
+# github.com/sfreiberg/simplessh v0.0.0-20180301191542-495cbb862a9c
+github.com/sfreiberg/simplessh
+# golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
+golang.org/x/crypto/blowfish
+golang.org/x/crypto/chacha20
+golang.org/x/crypto/curve25519
+golang.org/x/crypto/curve25519/internal/field
+golang.org/x/crypto/ed25519
+golang.org/x/crypto/ed25519/internal/edwards25519
+golang.org/x/crypto/internal/subtle
+golang.org/x/crypto/poly1305
+golang.org/x/crypto/ssh
+golang.org/x/crypto/ssh/agent
+golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
+# golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4
+golang.org/x/sys/cpu
+# k8s.io/klog/v2 v2.3.0
+k8s.io/klog/v2
