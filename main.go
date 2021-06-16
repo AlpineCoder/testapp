@@ -3,10 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -68,7 +70,9 @@ func main() {
 
 	http.HandleFunc("/foobar", fooBarHandler)
 	http.HandleFunc("/ssh", sshHandler)
+	http.HandleFunc("/backendCurl", getSomethingFromBackendCurl)
 	http.HandleFunc("/backend", getSomethingFromBackend)
+	http.HandleFunc("/headers", dumpHeaders)
 	// go doDNSLookup()
 	http.ListenAndServe(":10000", nil)
 }
@@ -110,7 +114,7 @@ func sshHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func getSomethingFromBackend(w http.ResponseWriter, r *http.Request) {
+func getSomethingFromBackendCurl(w http.ResponseWriter, r *http.Request) {
 	var sb string
 	easy := curl.EasyInit()
 	defer easy.Cleanup()
@@ -118,8 +122,8 @@ func getSomethingFromBackend(w http.ResponseWriter, r *http.Request) {
 	easy.Setopt(curl.OPT_URL, "http://testapp-backend:10000/foobar")
 
 	fooTest := func(buf []byte, userdata interface{}) bool {
-		println("DEBUG: size=>", len(buf))
-		println("DEBUG: content=>", string(buf))
+		// println("DEBUG: size=>", len(buf))
+		// println("DEBUG: content=>", string(buf))
 		sb = string(buf)
 		return true
 	}
@@ -132,8 +136,23 @@ func getSomethingFromBackend(w http.ResponseWriter, r *http.Request) {
 	}
 
 	klog.Infof("From Backend: %s", sb)
-	fmt.Fprintf(w, "From Backend: %s", sb)
+	fmt.Fprintf(w, "From Curl Backend: %s", sb)
 
+}
+
+func getSomethingFromBackend(w http.ResponseWriter, r *http.Request) {
+	resp, err := http.Get("http://testapp-backend:10000/foobar")
+	if err != nil {
+		klog.Error(err)
+	}
+	//We Read the response body on the line below.
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		klog.Error(err)
+	}
+	//Convert the body to type string
+	sb := string(body)
+	fmt.Fprintf(w, "From Backend: %s", sb)
 }
 
 func SshAndRunCommand(hostname, username, command string) ([]byte, error) {
@@ -174,4 +193,20 @@ func doDNSLookup() {
 		}
 		time.Sleep(time.Second)
 	}
+}
+
+func dumpHeaders(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, htmlHead)
+
+	keys := make([]string, 0, len(r.Header))
+	for k := range r.Header {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		fmt.Fprintf(w, "%s : %s<br>", k, r.Header[k])
+	}
+	fmt.Fprint(w, htmlFooter)
 }
