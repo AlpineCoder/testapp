@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/heptiolabs/healthcheck"
 	"github.com/sfreiberg/simplessh"
 	"k8s.io/klog/v2"
 
@@ -53,6 +54,9 @@ func init() {
 func main() {
 	defer klog.Flush()
 	klog.V(1).Info("Staring app...")
+	health := healthcheck.NewHandler()
+	health.AddLivenessCheck("goroutine-threshold", healthcheck.GoroutineCountCheck(100))
+	go http.ListenAndServe("0.0.0.0:8086", health)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, htmlHead)
 		fmt.Fprintf(w, "Hello, you've requested: %s<p>", r.URL.Path)
@@ -64,6 +68,10 @@ func main() {
 		} else {
 			klog.V(3).Infof("Path %s has been requested", r.URL.Path)
 		}
+
+		fmt.Fprintf(w, "<a href=\"/backend\">Backend</a>")
+		fmt.Fprintf(w, "<p>")
+		fmt.Fprintf(w, "<a href=\"/headers\">Headers</a>")
 
 		fmt.Fprint(w, htmlFooter)
 	})
