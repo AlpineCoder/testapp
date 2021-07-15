@@ -18,8 +18,41 @@ spec:
           image: "quay.io/ixcloud/testapp:0.0.2"
           resources:
             limits:
-              memory: "128Mi"
-              cpu: "500m"
+              memory: "64Mi"
+              cpu: "150m"
+            requets:
+              memory: "32Mi"
+              cpu: "50m"
+          ports:
+            - containerPort: 10000
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: testapp-pull-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testapp-backend
+spec:
+  selector:
+    matchLabels:
+      app: testapp-backend
+  template:
+    metadata:
+      labels:
+        app: testapp-backend
+        role: backend
+    spec:
+      containers:
+        - name: testapp-backend
+          image: "quay.io/ixcloud/testapp:0.0.2"
+          resources:
+            limits:
+              memory: "64Mi"
+              cpu: "150m"
+            requets:
+              memory: "32Mi"
+              cpu: "50m"
           ports:
             - containerPort: 10000
           imagePullPolicy: Always
@@ -40,6 +73,21 @@ spec:
       targetPort: 10000
   selector:
     app: testapp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testapp-backend
+  labels:
+    app: testapp-backend
+spec:
+  ports:
+    - port: 10000
+      protocol: TCP
+      name: testapp-backend
+      targetPort: 10000
+  selector:
+    app: testapp-backend
 ---
 apiVersion: v1
 kind: Secret
