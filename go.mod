@@ -1,4 +1,4 @@
-module inventx.ch/testapp
+module github.com/AlpineCoder/testapp
 
 go 1.16
 
